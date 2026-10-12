@@ -25,7 +25,7 @@ Nexora Workforce simplifies employee record management through a responsive web 
 1. Copy `.env.example` to `.env` and replace the example passwords.
 2. From the project root, run `docker compose --env-file .env up --build`.
 3. Open `http://localhost:3000`.
-4. The backend health endpoint is available at `http://localhost:8080/api/health` only if the backend port is published; otherwise use the frontend `/api/health` proxy.
+4. The backend health endpoint is available at `http://localhost:8080/api/health`; the frontend also proxies it at `http://localhost:3000/api/health`.
 
 ## Run services separately
 1. Create a MySQL database named `nexora_workforce`.
