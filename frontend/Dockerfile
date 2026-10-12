@@ -12,5 +12,5 @@ RUN sed -i 's/worker_processes[[:space:]]\+auto;/worker_processes 2;/' /etc/ngin
     && rm -f /docker-entrypoint.d/30-tune-worker-processes.sh
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 80
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost/ >/dev/null || exit 1
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost:8080/ >/dev/null || exit 1
