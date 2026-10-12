@@ -1,0 +1,50 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: nexora-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: nexora_workforce
+      MYSQL_USER: nexora
+      MYSQL_PASSWORD: ${DB_PASSWORD:-nexora_local_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_local_password}
+    volumes:
+      - nexora_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  backend:
+    build: ./backend
+    container_name: nexora-backend
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      DB_URL: jdbc:mysql://mysql:3306/nexora_workforce?useSSL=false&serverTimezone=UTC
+      DB_USERNAME: nexora
+      DB_PASSWORD: ${DB_PASSWORD:-nexora_local_password}
+      FRONTEND_ORIGIN: http://localhost:3000
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/health | grep -q UP"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: /api
+    container_name: nexora-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+volumes:
+  nexora_mysql_data:
