@@ -8,7 +8,8 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build
 FROM nginx:1.27-alpine
 # Cap worker count on hosts exposing unusually high CPU counts.
-RUN sed -i 's/worker_processes[[:space:]]\+auto;/worker_processes 2;/' /etc/nginx/nginx.conf
+RUN sed -i 's/worker_processes[[:space:]]\+auto;/worker_processes 2;/' /etc/nginx/nginx.conf \
+    && rm -f /docker-entrypoint.d/30-tune-worker-processes.sh
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
