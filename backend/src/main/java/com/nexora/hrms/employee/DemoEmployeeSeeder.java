@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Inserts clearly fictional demo records only when the employee table is empty.
+ * Adds clearly fictional demo records when their demo email is missing.
  * Existing employee data is never changed or deleted.
  */
 @Configuration
@@ -13,10 +13,6 @@ public class DemoEmployeeSeeder {
     @Bean
     CommandLineRunner seedDemoEmployees(EmployeeRepository repository) {
         return args -> {
-            if (repository.count() > 0) {
-                return;
-            }
-
             String[][] rows = {
                 {"Aarav Mehta", "aarav.mehta.demo@example.com", "Engineering", "Software Engineer", "ACTIVE"},
                 {"Priya Sharma", "priya.sharma.demo@example.com", "Human Resources", "HR Specialist", "ACTIVE"},
@@ -46,6 +42,9 @@ public class DemoEmployeeSeeder {
             };
 
             for (String[] row : rows) {
+                if (repository.existsByEmailIgnoreCase(row[1])) {
+                    continue;
+                }
                 Employee employee = new Employee();
                 employee.setFullName(row[0]);
                 employee.setEmail(row[1]);
